@@ -1,4 +1,4 @@
-package com.example.gsonrxjavaretrofittest;
+package com.example.gsonrxjavaretrofittest.screens.employee;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.gsonrxjavaretrofittest.R;
 import com.example.gsonrxjavaretrofittest.adapters.ResponseAdapter;
 import com.example.gsonrxjavaretrofittest.api.ApiFactory;
 import com.example.gsonrxjavaretrofittest.api.ApiService;
@@ -15,6 +16,7 @@ import com.example.gsonrxjavaretrofittest.pojo.Employee;
 import com.example.gsonrxjavaretrofittest.pojo.EmployeeResponse;
 
 import java.util.ArrayList;
+import java.util.List;
 
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -22,14 +24,11 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
-public class MainActivity extends AppCompatActivity {
-    private CompositeDisposable compositeDisposable;
+public class EmployeeListActivity extends AppCompatActivity implements EmployeeListView {
     private ResponseAdapter responseAdapter;
     private RecyclerView recyclerView;
+    private EmployeeListPresenter presenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,41 +39,30 @@ public class MainActivity extends AppCompatActivity {
         responseAdapter.setEmployees(new ArrayList<Employee>());
         recyclerView.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false));
         recyclerView.setAdapter(responseAdapter);
-        compositeDisposable = new CompositeDisposable();
+        presenter = new EmployeeListPresenter(this);
+        presenter.LoadData();
 
 
 
-        ApiFactory apiFactory = ApiFactory.getInstance();
-        ApiService apiService = apiFactory.getApiService();
 
 
-
-        Disposable disposable = apiService.getResponseService().subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread()).subscribe(new Consumer<EmployeeResponse>() {
-            @Override
-            public void accept(EmployeeResponse response) throws Exception {
-                    //ставим значения в адаптер
-                Log.i("my_ex",response.getResponse().toString());
-                responseAdapter.setEmployees(response.getResponse());
-            }
-
-        }, new Consumer<Throwable>() {
-            @Override
-            public void accept(Throwable throwable) throws Exception {
-                Log.i("my_ex",throwable.getMessage());
-                Toast.makeText(MainActivity.this, throwable.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-        compositeDisposable.add(disposable);
 
 
     }
 
     @Override
     protected void onDestroy() {
-        if(compositeDisposable!=null){
-            compositeDisposable.dispose();
-        }
+        presenter.disposeDisposable();
         super.onDestroy();
+    }
+
+    @Override
+    public void showData(List<Employee> employees) {
+        responseAdapter.setEmployees(employees);
+    }
+
+    @Override
+    public void showError(String error) {
+        Toast.makeText(this, error, Toast.LENGTH_SHORT).show();
     }
 }
