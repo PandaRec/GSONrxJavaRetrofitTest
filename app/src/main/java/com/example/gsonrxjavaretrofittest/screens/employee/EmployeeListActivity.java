@@ -1,6 +1,8 @@
 package com.example.gsonrxjavaretrofittest.screens.employee;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -25,10 +27,10 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
-public class EmployeeListActivity extends AppCompatActivity implements EmployeeListView {
+public class EmployeeListActivity extends AppCompatActivity {
     private ResponseAdapter responseAdapter;
     private RecyclerView recyclerView;
-    private EmployeeListPresenter presenter;
+    private EmployeeViewModel viewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,9 +41,27 @@ public class EmployeeListActivity extends AppCompatActivity implements EmployeeL
         responseAdapter.setEmployees(new ArrayList<Employee>());
         recyclerView.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false));
         recyclerView.setAdapter(responseAdapter);
-        presenter = new EmployeeListPresenter(this);
-        presenter.LoadData();
 
+
+        viewModel = new ViewModelProvider.AndroidViewModelFactory(getApplication()).create(EmployeeViewModel.class);
+
+        viewModel.getEmployees().observe(this, new Observer<List<Employee>>() {
+            @Override
+            public void onChanged(List<Employee> employees) {
+                responseAdapter.setEmployees(employees);
+            }
+        });
+        viewModel.getErrors().observe(this, new Observer<Throwable>() {
+            @Override
+            public void onChanged(Throwable throwable) {
+                if(throwable!=null){
+                    Toast.makeText(EmployeeListActivity.this, "ошибка - "+throwable.getMessage(), Toast.LENGTH_SHORT).show();
+                    viewModel.clearErrors();
+                }
+            }
+        });
+
+        viewModel.LoadData();
 
 
 
@@ -50,19 +70,4 @@ public class EmployeeListActivity extends AppCompatActivity implements EmployeeL
 
     }
 
-    @Override
-    protected void onDestroy() {
-        presenter.disposeDisposable();
-        super.onDestroy();
-    }
-
-    @Override
-    public void showData(List<Employee> employees) {
-        responseAdapter.setEmployees(employees);
-    }
-
-    @Override
-    public void showError(String error) {
-        Toast.makeText(this, error, Toast.LENGTH_SHORT).show();
-    }
 }
