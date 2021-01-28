@@ -16,6 +16,7 @@ import com.example.gsonrxjavaretrofittest.api.ApiFactory;
 import com.example.gsonrxjavaretrofittest.api.ApiService;
 import com.example.gsonrxjavaretrofittest.pojo.Employee;
 import com.example.gsonrxjavaretrofittest.pojo.EmployeeResponse;
+import com.example.gsonrxjavaretrofittest.pojo.Specialty;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,6 +50,15 @@ public class EmployeeListActivity extends AppCompatActivity {
             @Override
             public void onChanged(List<Employee> employees) {
                 responseAdapter.setEmployees(employees);
+                /*
+                         тестовый вывод
+                for(Employee employee:employees){
+                    List<Specialty> specialties = employee.getSpecialty();
+                    for(Specialty specialty:specialties){
+                        Log.i("kek_",specialty.getName());
+                    }
+                }
+                */
             }
         });
         viewModel.getErrors().observe(this, new Observer<Throwable>() {

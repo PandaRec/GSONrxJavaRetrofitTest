@@ -10,7 +10,7 @@ import com.example.gsonrxjavaretrofittest.pojo.Employee;
 
 import java.util.ConcurrentModificationException;
 import java.util.Observable;
-@Database(entities = {Employee.class},version = 1,exportSchema = false)
+@Database(entities = {Employee.class},version = 2,exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
     private static AppDatabase database;
     private static Object LOCK = new Object();
@@ -19,7 +19,8 @@ public abstract class AppDatabase extends RoomDatabase {
     public static AppDatabase getInstance(Context context){
         synchronized (LOCK) {
             if (database == null) {
-                database = Room.databaseBuilder(context, AppDatabase.class, DB_NAME).build();
+                database = Room.databaseBuilder(context, AppDatabase.class, DB_NAME)
+                        .fallbackToDestructiveMigration().build();
             }
 
             return database;

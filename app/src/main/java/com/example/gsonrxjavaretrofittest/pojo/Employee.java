@@ -2,11 +2,14 @@ package com.example.gsonrxjavaretrofittest.pojo;
 
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
+import androidx.room.TypeConverters;
 
+import com.example.gsonrxjavaretrofittest.converters.Converter;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
+@TypeConverters(value = Converter.class)
 @Entity(tableName = "employees")
 public class Employee {
     @PrimaryKey(autoGenerate = true)
@@ -23,9 +26,9 @@ public class Employee {
     @SerializedName("avatr_url")
     @Expose
     private String avatarUrl;
-//    @SerializedName("specialty")
-//    @Expose
-//    private List<Specialty> specialty = null;
+    @SerializedName("specialty")
+    @Expose
+    private List<Specialty> specialty = null;
 
     public String getFirstName() {
         return firstName;
@@ -59,13 +62,13 @@ public class Employee {
         this.avatarUrl = avatarUrl;
     }
 
-//    public List<Specialty> getSpecialty() {
-//        return specialty;
-//    }
-//
-//    public void setSpecialty(List<Specialty> specialty) {
-//        this.specialty = specialty;
-//    }
+    public List<Specialty> getSpecialty() {
+        return specialty;
+    }
+
+    public void setSpecialty(List<Specialty> specialty) {
+        this.specialty = specialty;
+    }
 
     public int getId() {
         return id;
